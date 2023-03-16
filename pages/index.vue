@@ -5,10 +5,11 @@
         <input id="text" class="p-5 min-w-full text-center border-[5px] rounded-xl bg-green-100 border-green-100 focus:border-green-300 focus:outline-none placeholder:text-gray-500" type="text" placeholder="Say something!" v-model="text"><br>
         <div class="flex justify-evenly">
           <div>
-            <select name="lang" id="lang" class="mt-10 mx-auto border-2">
-              <option value="en">EN</option>
-              <option value="id">ID</option>
-              <option value="es">ES</option>
+            <select name="lang" id="inLang" class="mt-10 mx-auto border-2">
+              <option value="en-US">EN</option>
+              <option value="id-ID">ID</option>
+              <option value="es-ES">ES</option>
+              <option value="ja-JP">JP</option>
             </select>
             <h2 class="text-center font-semibold">IN</h2>
           </div>
@@ -17,9 +18,10 @@
           </div>
           <div>
             <select name="toLang" id="toLang" class="mt-10 mx-auto border-2">
-              <option value="en">EN</option>
-              <option value="id">ID</option>
-              <option value="es">ES</option>
+              <option value="en-US">EN</option>
+              <option value="id-ID">ID</option>
+              <option value="es-ES">ES</option>
+              <option value="ja-JP">JP</option>
             </select>
           </div>
         </div><br>
@@ -29,13 +31,14 @@
           <button type="submit" @click="translateSpeak()" class="font-semibold">Translate and Speak!</button>
         </div>
         <section id="translate" class="text-center pt-6 pb-2"></section>
+        <section id="warning" class="text-center pt-6 pb-2"></section>
       </div>
     </div>
 </template>
 
 <script>
 
-import Speech from 'speak-tts'
+// import Speech from 'speak-tts'
 import translate from 'translate'
 import fs from 'fs'
 
@@ -47,71 +50,83 @@ import fs from 'fs'
     },
     methods: {
       async makeSound() {
-        const say = new Speech()
+        document.querySelector('#warning').innerHTML = ''
+        document.querySelector('#translate').innerHTML = ''
+        // const say = new Speech()
 
-        say.speak({
-          text: this.text
-        })
+        // say.speak({
+        //   text: this.text
+        // })
+        const utterance = new SpeechSynthesisUtterance();
+
+        // console.log(this.text)
+        utterance.text = this.text
+
+        utterance.lang = document.querySelector('#inLang').value
+
+        window.speechSynthesis.speak(utterance);
       },
       async translateText() {
-        const toLang = document.querySelector("#toLang").value
-        console.log(toLang)
+        document.querySelector('#warning').innerHTML = ''
+        document.querySelector('#translate').innerHTML = ''
 
-        if (this.text == '')
+        const fromLang = (document.querySelector("#inLang").value).slice(0, -3)
+        const toLang = (document.querySelector("#toLang").value).slice(0, -3)
+
+        if (fromLang === toLang)
         {
-          document.querySelector('#translate').innerHTML = ''
+          document.querySelector('#warning').innerHTML = 'The language in which you are trying to translate and the destination language is identical'
         }
+        else
+        {
+          const trans = await translate(this.text, { from: fromLang, to: toLang })
+          console.log(trans)
 
-        const trans = await translate(this.text, toLang)
-        document.querySelector('#translate').innerHTML = trans
+          document.querySelector('#translate').innerHTML = trans
+        }
       },
       async translateSpeak() {
+        document.querySelector('#warning').innerHTML = ''
+        document.querySelector('#translate').innerHTML = ''
 
         const utterance = new SpeechSynthesisUtterance();
 
-        const fromLang = document.querySelector("#lang").value
+        const fromLang = document.querySelector("#inLang").value
         const toLang = document.querySelector("#toLang").value
-        let fromLangv2 = ''
-        let toLangv2 = ''
 
-        if (fromLang != 'en') {
-          let fromLangv2 = fromLang +"-"+ fromLang.toUpperCase()
-          console.log(fromLangv2)
-        }
-        else
-        {
-          fromLangv2 = 'en-US'
-        }
+        console.log(fromLang, toLang)
         
-        if (toLang != 'en') {
-          toLangv2 = toLang +"-"+ toLang.toUpperCase()
-          console.log(toLangv2)
-        }
-        else
-        {
-          toLangv2 = 'en-US'
-        }
+        let fromLangv2 = fromLang.slice(0, -3)
+        let toLangv2 = toLang.slice(0, -3)
+        
+        console.log(fromLangv2, toLangv2)
 
         console.log(fromLangv2, toLangv2)
 
-        // translate.from = fromLang
-
-        if (this.text == '')
+        if (fromLang === toLang)
         {
-          document.querySelector('#translate').innerHTML = ''
+          document.querySelector('#warning').innerHTML = 'The language in which you are trying to translate and the destination language is identical'
+        }
+        else
+        {
+          if (this.text == '')
+          {
+            document.querySelector('#translate').innerHTML = ''
+          }
+  
+          const trans = await translate(this.text, { from: fromLangv2, to: toLangv2 })
+  
+          document.querySelector('#translate').innerHTML = trans
+  
+          console.log(trans)
+  
+          utterance.text = trans
+  
+          utterance.lang = toLang
+  
+          window.speechSynthesis.speak(utterance);
         }
 
-        const trans = await translate(this.text, { from: fromLang, to: toLang })
-
-        document.querySelector('#translate').innerHTML = trans
-
-        console.log(trans)
-
-        utterance.text = trans
-
-        utterance.lang = toLangv2
-
-        window.speechSynthesis.speak(utterance);
       }
     },
   }
