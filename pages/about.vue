@@ -1,5 +1,5 @@
 <template>
-  <div class="lg:bg-[url('~/bg.jpg')] sm:bg-blue-400 bg-cover min-h-screen bg-no-repeat">
+  <div class="lg:bg-[url('bg.jpg')] sm:bg-blue-400 bg-cover min-h-screen bg-no-repeat">
     <div class="container mx-auto grid gap-y-16 md:grid-cols-2 lg:grid-cols-3 translate-y-1/4">
         <div v-for="ang in anggota" :key="ang.nrp">
             <cards :anggota="ang" />

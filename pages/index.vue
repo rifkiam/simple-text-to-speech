@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-[url('~/bg.jpg')] bg-cover min-h-screen bg-no-repeat">
+  <div class="bg-[url('bg.jpg')] bg-cover min-h-screen bg-no-repeat">
     <div class="text-center h-0 font-bold text-3xl translate-y-[20vh]">Type in what you want to hear!</div><br>
     <div class="bg-gradient-to-tr from-blue-500 to-blue-300 border-10 md:rounded-3xl container mx-auto max-w-full md:max-w-xl translate-y-[25vh]">
       <div class="py-8 px-10">
@@ -35,7 +35,8 @@
         <div class="mb-3">
           <section id="translate" :class="{ 'translate-y-[1vh]': true, 'bg-stone-100': viewTranslate, 'shadow-2xl': viewTranslate, 'border-[2px]': viewTranslate, 'rounded-xl': true, 'text-center': true , 'py-1': true, 'px-2': true }"></section>
           <section id="warning" :class="{ 'translate-y-[1vh]': true, 'bg-stone-100': viewWarning, 'shadow-2xl': viewWarning, 'border-[2px]': viewWarning, 'rounded-xl': true, 'text-center': true , 'py-1': true, 'px-2': true }"></section>
-          <button @click="downloadAu" id="download" :class="{ 'translate-y-[1vh]': true, 'visible': viewDownload, 'text-transparent': !viewDownload, 'bg-stone-100': viewDownload, 'shadow-2xl': viewDownload, 'border-[2px]': viewDownload, 'rounded-xl': true, 'text-center': true , 'py-1': true, 'px-2': true }">Donwload</button>
+          <!-- <button @click="downloadAu" id="download" :class="{ 'translate-y-[1vh]': true, 'visible': viewDownload, 'text-transparent': !viewDownload, 'bg-stone-100': viewDownload, 'shadow-2xl': viewDownload, 'border-[2px]': viewDownload, 'rounded-xl': true, 'text-center': true , 'py-1': true, 'px-2': true }">Donwload</button> -->
+          <!-- <audio id="result" controls></audio> -->
         </div>
 
       </div>
@@ -56,7 +57,8 @@ import translate from 'translate';
         viewWarning: false,
         text: '',
         textToProcess: '',
-        utteranceToProcess: null
+        utteranceToProcess: null,
+        // audio: 
       }
     },
     methods: {
@@ -174,22 +176,34 @@ import translate from 'translate';
           this.viewDownload = true
         }
       },
+      // async downloadAu() {
+      //   const utterance = new SpeechSynthesisUtterance(this.textToProcess);
+      //   // console.log(this.textToProcess)
+
+      //   window.speechSynthesis.speak(utterance);
+
+      //   utterance.onend = () => {
+      //     // Create a new Blob containing the speech audio data
+      //     const blob = new Blob([new Uint8Array(utterance.audioBuffer)], { type: 'audio/wav' });
+
+      //     // Create a download link for the audio file
+      //     const downloadLink = document.createElement('a');
+      //     downloadLink.href = URL.createObjectURL(blob);
+      //     downloadLink.download = 'speech.wav';
+      //     downloadLink.click();
+      //   };
+      // },
       async downloadAu() {
-        const utterance = new SpeechSynthesisUtterance(this.textToProcess);
-        // console.log(this.textToProcess)
-
-        window.speechSynthesis.speak(utterance);
-
-        utterance.onend = () => {
-          // Create a new Blob containing the speech audio data
-          const blob = new Blob([new Uint8Array(utterance.audioBuffer)], { type: 'audio/wav' });
-
-          // Create a download link for the audio file
-          const downloadLink = document.createElement('a');
-          downloadLink.href = URL.createObjectURL(blob);
-          downloadLink.download = 'speech.wav';
-          downloadLink.click();
+        const utterance = this.utteranceToProcess;
+        const audio = document.createElement('audio');
+        audio.controls = true;
+        document.body.appendChild(audio);
+        utterance.onend = function() {
+          const blob = new Blob([new XMLSerializer().serializeToString(utterance)], { type: 'application/ssml+xml' });
+          const url = URL.createObjectURL(blob);
+          audio.src = url;
         };
+        synth.speak(utterance);
       }
       // async downloadAudio() {
       //   this.viewWarning = false
