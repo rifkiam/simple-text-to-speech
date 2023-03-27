@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-[url('bg.jpg')] bg-cover min-h-screen bg-no-repeat">
+  <div class="bg-[url('assets/bg.jpg')] bg-cover min-h-screen bg-no-repeat">
     <div class="text-center h-0 font-bold text-3xl translate-y-[20vh]">Type in what you want to hear!</div><br>
     <div class="bg-gradient-to-tr from-blue-500 to-blue-300 border-10 md:rounded-3xl container mx-auto max-w-full md:max-w-xl translate-y-[25vh]">
       <div class="py-8 px-10">
